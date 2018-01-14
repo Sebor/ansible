@@ -1,0 +1,59 @@
+---
+- hosts: all
+
+  vars:
+    user1_login: user1
+    user1_id: 1080
+    user1_gr: "{{ user1_login }}"
+    user1_name: User1
+    user1_pass: '$6$0s45grjGB4c4is0'
+
+    user2_login: user2
+    user2_id: 1081
+    user2_gr: "{{ user2_login }}"
+    user2_name: User2
+    user2_pass: '$$6$0se56fyf7r7ris0'
+
+    user3_login: user3
+    user3_id: 1082
+    user3_gr: "{{ user3_login }}"
+    user3_name: User3
+    user3_pass: '$6$0sr7fg77gDi9GB4c4is0'
+
+    user4_login: user4
+    user4_id: 1083
+    user4_gr: "{{ user4_login }}"
+    user4_name: User4
+    user4_pass: '$6$0se45h768584wfqXRT0TOR.7gDi9GB4c4is0'
+    
+    #sudo_gr: "{{ (ansible_os_family == 'RedHat') | ternary('wheel','sudo') }}"
+
+
+  tasks:
+
+    - name: add several groups
+      group:
+        name: "{{ item.name }}"
+        state: present
+        gid: "{{ item.gid }}"
+      with_items:
+        - { name: "{{ user1_gr }}", gid: "{{ user1_id }}" }
+        - { name: "{{ user2_gr }}", gid: "{{ user2_id }}" }
+        - { name: "{{ user3_gr }}", gid: "{{ user3_id }}" }
+        - { name: "{{ user4_gr }}", gid: "{{ user4_id }}" }
+
+
+    - name: add several users
+      user:
+        name: "{{ item.name }}"
+        state: present
+        uid: "{{ item.uid }}"
+        group: "{{ item.group }}"
+        password: "{{ item.password }}"
+        comment: "{{ item.comment }}"
+        groups: "{{ item.groups }}"
+      with_items:
+        - { name: "{{ user1_login }}", uid: "{{ user1_id }}", group: "{{ user1_gr }}", password: "{{ user1_pass }}", comment: "{{ user1_name }}", groups: "{{ sudo_gr | default(omit) }}" }
+        - { name: "{{ user2_login }}", uid: "{{ user2_id }}", group: "{{ user2_gr }}", password: "{{ user2_pass }}", comment: "{{ user2_name }}", groups: "{{ sudo_gr | default(omit) }}" }
+        - { name: "{{ user3_login }}", uid: "{{ user3_id }}", group: "{{ user3_gr }}", password: "{{ user3_pass }}", comment: "{{ user3_name }}", groups: "{{ sudo_gr | default(omit) }}" }
+        - { name: "{{ user4_login }}", uid: "{{ user4_id }}", group: "{{ user4_gr }}", password: "{{ user4_pass }}", comment: "{{ user4_name }}", groups: "{{ sudo_gr | default(omit) }}" } 

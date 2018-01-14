@@ -1,0 +1,5 @@
+*       *       *       *       *       curl "http://127.0.0.1/nginx-stats" 2>/dev/null > /etc/zabbix/out/nginx-stats
+*       *       *       *       *       awk  {'print $9'} /data/nginx/log/app.log | sort | uniq -c | sort -n > /etc/zabbix/out/app.cat.tmp && mv /etc/zabbix/out/app.cat.tmp /etc/zabbix/out/app.cat
+#*       *       *       *       *       grep `date --date='minute ago' +\%d/\%b/\%Y:\%H:\%M:` /data/nginx/log/app.log | awk '{print$17}' | sed 's/"//g' | awk '{sum+=$1} END { print sum/NR }' > /etc/zabbix/out/resp.cat
+*       *       *       *       *       grep "`date -d -1minutes +\%Y/\%m/\%d\ \%H:\%M:`" /data/nginx/log/error.log | grep -c reset > /etc/zabbix/out/reset.cat
+0       0       *       *       *       /usr/sbin/logrotate -s /data/etc/logrotate/status /data/etc/logrotate/cron

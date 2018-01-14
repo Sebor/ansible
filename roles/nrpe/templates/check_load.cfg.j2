@@ -1,0 +1,1 @@
+command[check_load]={{ plugins_path }}check_load -w {{ ansible_processor_vcpus + 4 }},{{ ansible_processor_vcpus + 2 }},{{ ansible_processor_vcpus }} -c {{ ansible_processor_vcpus  + 10 }},{{ ansible_processor_vcpus + 8 }},{{ ansible_processor_vcpus + 6 }}

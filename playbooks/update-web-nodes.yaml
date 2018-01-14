@@ -1,0 +1,14 @@
+---
+- hosts: web-nodes
+  serial: 1
+  any_errors_fatal: True
+  vars:
+    war_version: "3.4.1"
+    repo_version: "3.0.77"
+    timeout: 1
+  roles:
+    - { role: slack, message: "Update has started! \nWAR: {{ war_version }} \nREPO: {{ repo_version }}",
+              notify_color: "warning",  when: "inventory_hostname == ansible_play_hosts[0]" }
+    - web-nodes-update
+    - { role: slack, message: "Update has finished! \nWAR: {{ war_version }} \nREPO: {{ repo_version }}",
+              notify_color: "warning", when: "inventory_hostname == ansible_play_hosts[-1]" }

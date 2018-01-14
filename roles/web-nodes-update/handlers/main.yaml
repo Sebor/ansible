@@ -1,0 +1,19 @@
+- name: Stop tomcat
+  raw: "sudo=systemctl stop tomcat-app"
+  listen: "Stop web services"
+  become: yes
+
+- name: Stop nginx
+  raw: "sudo=systemctl stop nginx"
+  listen: "Stop web services"
+  become: yes
+
+- name: Start tomcat
+  raw: "sudo=systemctl start tomcat-app"
+  listen: "Start web services"
+  become: yes
+
+- name: Start nginx
+  raw: "sudo=systemctl start nginx"
+  listen: "Start web services"
+  become: yes

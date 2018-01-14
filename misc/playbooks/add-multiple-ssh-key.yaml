@@ -1,0 +1,12 @@
+---
+- hosts: web-servers
+  tasks:
+    - name: "Add ssh pub-key to host"
+      authorized_key:
+          user: "{{ ansible_user }}"
+          state: present
+          key: '{{ item }}'
+      with_file:
+          - /home/user/.ssh/id_rsa.pub
+          - /home/user/ansible/roles/common/files/pub_keys/user2-id_rsa.pub
+          - /home/user/ansible/roles/common/files/pub_keys/user3-id_rsa.pub

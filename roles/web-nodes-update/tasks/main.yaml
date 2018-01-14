@@ -1,0 +1,110 @@
+- block:
+    - include_role:
+        name: slack
+      vars:
+        message: "Node {{ inventory_hostname }} is updating"
+        notify_color: "warning"
+
+    - name: "Disable node {{ inventory_hostname }} on balancer and wait {{ timeout }} minute(s) then stop services"
+      uri:
+        url: "{{ front_url }}={{ upstream_type }}&id={{ node_id }}&drain=1"
+        return_content: yes
+      register: drain_status
+
+    - name: "Check node {{ inventory_hostname }} is draining"
+      fail:
+      when: "'draining' not in drain_status.content"
+    - pause:
+        prompt: "Wait while users are leaving server"
+        minutes: "{{ timeout }}"
+
+    - name: "Stoppping web services"
+      raw: "sudo=systemctl stop {{ item }}"
+      with_items:
+         - tomcat-app
+         - nginx
+      become: yes
+      become_user: root
+    
+    - name: "Purge webapps directory"
+      shell: "/bin/rm -rf {{ webapps_path }}/*"
+    
+    - name: "Purge repo directory"
+      shell: "/bin/rm -rf {{ repo_path }}"
+    
+    - name: "Purge compiler directory"
+      shell: "/bin/rm -rf {{ compiler_path }}/*"
+        
+    - name: "Download app-app-{{ war_version }}.war file"
+      get_url:
+        dest: "{{ webapps_path }}/ROOT.war"
+        force: yes
+        url: "{{ artifactory_url }}/weblab-release-local/ru/company/projects/app-app/{{ war_version }}/app-app-{{ war_version }}.war"
+        url_password: "{{ artifactory_pass }}"
+        url_username: "{{ artifactory_user }}"
+                
+    - name: "Download repository-{{ repo_version }}.zip file"
+      get_url:
+        dest: "/tmp/{{ repo_version }}.zip"
+        force: yes
+        url: "{{ artifactory_url }}/weblab-release-local/ru/company/projects/app/repository/{{ repo_version }}/repository-{{ repo_version }}.zip"
+        url_password: "{{ artifactory_pass }}"
+        url_username: "{{ artifactory_user }}"
+    
+    - name: "Unzip file {{ repo_version }}.zip into application directory"
+      unarchive:
+        src: "/tmp/{{ repo_version }}.zip"
+        dest: "{{ tomcat_path }}"
+        copy: no
+    
+    - name: "Rename repository directory"
+      shell: "/bin/mv {{ tomcat_path }}/repository {{ repo_path }}"
+    
+    - name: "Delete repo archive /tmp/{{ repo_version }}.zip"
+      file:
+        path: "/tmp/{{ repo_version }}.zip"
+        state: absent
+
+    - name: "Starting web services"
+      raw: "sudo=systemctl start {{ item }}"
+      with_items:
+         - tomcat-app
+         - nginx
+      become: yes
+      become_user: root
+    - pause:
+        prompt: "Wait while services are starting"
+        seconds: 20
+  
+    - name: "Check Tomcat operability"
+      uri:
+        url: "http://127.1:8080"
+        follow_redirects: none
+        status_code: "{{ http_ok }}"
+    
+    - name: "Check Nginx operability"
+      uri:
+        url: "http://127.1"
+        status_code: 404
+    
+    - name: "Enable node {{ inventory_hostname }} on balancer"
+      uri:
+        url: "{{ front_url }}={{ upstream_type }}&id={{ node_id }}&up=1"
+      register: up_status
+
+    - include_role:
+        name: slack
+      vars:
+        message: "Update completed on {{ inventory_hostname }}"
+        notify_color: "good"
+      when: up_status | success
+
+  become: yes
+  become_user: www
+
+  rescue:
+    - include_role:
+        name: slack
+      vars:
+        message: "Update failed on {{ inventory_hostname }}"
+        notify_color: "danger"

@@ -1,0 +1,11 @@
+nrpe_pkgs:
+  - wget
+  - sysstat
+  - net-snmp
+  - nrpe
+  - nagios-plugins-all
+  - facter
+  
+configs_path: '/etc/nrpe.d/'
+plugins_path: '/usr/lib64/nagios/plugins/'
+nrpe_service: 'nrpe'

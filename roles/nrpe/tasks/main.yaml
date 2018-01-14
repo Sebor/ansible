@@ -1,0 +1,32 @@
+- name: Set OS specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family|lower }}.yaml"
+
+- name: Install required packages
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ nrpe_pkgs }}"
+
+- name: Edit nrpe configuration file
+  replace:
+    dest: "{{ conf_file }}"
+    regexp: '^allowed_hosts=.+$'
+    replace: "allowed_hosts={{ nag_servers }}"
+    backup: yes
+
+- name: Copy configs templates
+  template:
+    src: "{{ item }}"
+    dest: "{{ configs_path }}{{ item | basename | regex_replace('.j2','') }}"
+    backup: yes
+  with_fileglob: templates/*.j2
+
+- name: Copy nrpe custom plugins
+  copy:
+    src: "../files/plugins/"
+    dest: "{{ plugins_path }}"
+    mode: "u=rwx,g=rx,o=rx"
+  notify:
+    - restart nrpe

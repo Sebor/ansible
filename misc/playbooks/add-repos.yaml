@@ -1,0 +1,170 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Add DELL DSU OS Depended Repo (rpm)
+      yum_repository:
+        name: dell-dsu-os_dep
+        description: DELL DSU OS Depended Repo (rpm)
+        file: dell-dsu
+        baseurl: http://repo.example.com/dell/dsu/os_dependent/$releasever/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_os_family == "RedHat" and ansible_virtualization_role != "guest" and ansible_system_vendor == "Dell Inc."
+       
+    - name: Add DELL DSU OS Independent Repo (rpm)
+      yum_repository:
+        name: dell-dsu-os_indep
+        description: DELL DSU OS Independent Repo (rpm)
+        file: dell-dsu
+        baseurl: http://repo.example.com/dell/dsu/os_independent/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_os_family == "RedHat" and ansible_virtualization_role != "guest" and ansible_system_vendor == "Dell Inc."
+ 
+    - name: Add HP Repo (rpm)
+      yum_repository:
+        name: hp
+        description: HP SPP Repo
+        baseurl: http://repo.example.com/hp/spp/$releasever/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_os_family == "RedHat" and ansible_virtualization_role != "guest" and ansible_system_vendor == "HP"
+      
+    - name: Add RHEL Base Repo
+      yum_repository:
+        name: rhel-base
+        description: RHEL Base Repo
+        baseurl: http://repo.example.com/rhel/$releasever/$basearch/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_distribution == "RedHat"
+      
+    - name: Add RHEL 7 Optional Repo
+      yum_repository:
+        name: rhel-optional
+        description: RHEL 7 Optional Repo
+        baseurl: http://repo.example.com/rhel/7/rhel-7-server-optional-rpms/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == '7'
+      
+    - name: Add RHEL 6 Optional Repo
+      yum_repository:
+        name: rhel-optional
+        description: RHEL 6 Optional Repo
+        baseurl: http://repo.example.com/rhel-x86_64-server-optional-6/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == '6'
+      
+    - name: Add EPEL Repo
+      yum_repository:
+        name: epel
+        description: Extra Packages for Enterprise Linux
+        baseurl: http://repo.example.com/epel/$releasever/$basearch/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_os_family == "RedHat"
+      
+    - name: Add CentOS Base Repo
+      yum_repository:
+        name: centos-base
+        file: centos
+        description: CentOS Base Repo
+        baseurl: http://repo.example.com/centos/$releasever/os/$basearch/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_distribution == "CentOS"
+      
+    - name: Add CentOS Extras Repo
+      yum_repository:
+        name: centos-extras
+        file: centos
+        description: CentOS Base Repo
+        baseurl: http://repo.example.com/centos/$releasever/extras/$basearch/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_distribution == "CentOS"
+      
+    - name: Add CentOS Updates Repo
+      yum_repository:
+        name: centos-updates
+        file: centos
+        description: CentOS Base Repo
+        baseurl: http://repo.example.com/centos/$releasever/updates/$basearch/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_distribution == "CentOS"
+      
+    - name: Add CentOS Centosplus Repo
+      yum_repository:
+        name: centos-centosplus
+        file: centos
+        description: CentOS Base Repo
+        baseurl: http://repo.example.com/centos/$releasever/centosplus/$basearch/
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_distribution == "CentOS"
+      
+    - name: Add Puppetlabs Repo (rpm)
+      yum_repository:
+        name: puppetlabs
+        description: CPuppetlabs Repo (rpm)
+        baseurl: http://repo.example.com/puppetlabs/el/$releasever/products/$basearch
+        skip_if_unavailable: yes
+        repo_gpgcheck: no
+        gpgcheck: no
+      when: ansible_os_family == "RedHat"
+           
+    - name: Edit Ubuntu Repos
+      replace:
+        path: /etc/apt/sources.list
+        regexp: 'http:\/\/.+\.ubuntu\.com'
+        replace: 'http://repo.example.com'
+        backup: yes
+      when: ansible_distribution == "Ubuntu"
+      
+    - name: Add Puppetlabs Repo (deb)
+      apt_repository:
+        filename: 'puppet5'
+        repo: "deb http://repo.example.com/puppetlabs/apt/ {{ ansible_lsb.codename|lower }} puppet5"
+      when: ansible_os_family == "Debian"
+      
+    - name: Add Puppetlabs Repo key (deb)
+      apt_key:
+        url: "http://repo.example.com/puppetlabs/apt/pubkey.gpg"
+      when: ansible_os_family == "Debian" 
+      
+    - name: Add DELL DSU Repo (deb)
+      apt_repository:
+        filename: 'dell-dsu'
+        repo: "deb http://repo.example.com/dell/dsu/community/ubuntu/ {{ ansible_lsb.codename|lower }} openmanage"
+      when: ansible_os_family == "Debian" and ansible_virtualization_role != "guest" and ansible_system_vendor == "Dell Inc."
+      
+    - name: Add DELL DSU Repo key (deb)
+      apt_key:
+        url: "http://repo.example.com/dell/dsu/community/ubuntu/dell-deb-repokey.gpg"
+      when: ansible_os_family == "Debian" and ansible_virtualization_role != "guest" and ansible_system_vendor == "Dell Inc."
+      
+    - name: Add HP Repo (deb)
+      apt_repository:
+        filename: 'hp'
+        repo: "deb http://repo.example.com/hp/mcp/ubuntu/ {{ ansible_lsb.codename|lower }}/current non-free"
+      when: ansible_os_family == "Debian" and ansible_virtualization_role != "guest" and ansible_system_vendor == "HP"
+      
+    - name: Add HP Repo key (deb)
+      apt_key:
+        url: "http://repo.example.com/hp/mcp/ubuntu/hp-deb-repokey.gpg"
+      when: ansible_os_family == "Debian" and ansible_virtualization_role != "guest" and ansible_system_vendor == "HP"

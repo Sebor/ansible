@@ -1,0 +1,13 @@
+---
+- hosts: all
+
+  vars:
+      user_name: username
+      ssh_key: 'ssh-rsa AAAAB3NzaC1kjgnhhffnfgnfmnfbfmnf45345y3487534h53485bfyv3YM07Q=='
+      
+  tasks:
+      - name: "Add ssh key for user {{ user_name }}" 
+        authorized_key:
+            user: "{{ user_name }}"
+            key: "{{ ssh_key }}"
+        register: result

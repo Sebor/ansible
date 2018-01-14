@@ -1,0 +1,28 @@
+---
+- hosts: all
+
+  vars:
+      gid: 730
+      uid: "{{ gid }}"
+      user_name: username
+      group_name: "{{ user_name }}"
+      group_list: "{{ (ansible_os_family == 'RedHat') | ternary('wheel','sudo') }}"
+      str_comment: 'User Userov'
+      password: '$1$2Nqmbhjgjhb3578945//elgXtXVlfgfg34dfsw34qxR1pUG/'
+      
+  tasks:
+      - name: "Create group {{ group_name }}"
+        group:
+            name: "{{ group_name }}"
+            gid: "{{ gid }}"
+        register: result
+            
+      - name: "Create user {{ user_name }}"
+        user:
+            name: "{{ user_name }}"
+            uid: "{{ uid }}"
+            group: "{{ group_name }}"
+            groups: "{{ group_list | default(omit) }}"
+            password: "{{ password }}"
+            comment: "{{ str_comment }}"
+        when: result|success

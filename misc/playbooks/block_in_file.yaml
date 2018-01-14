@@ -1,0 +1,23 @@
+---
+- hosts: all
+
+  vars:
+    filepath: '/etc/sudoers.d/admins'
+    fileowner: root
+    filemode: 0440
+
+    
+  tasks:
+
+    - name: insert/update configuration block in file
+      blockinfile:
+        path: "{{ filepath }}"
+        create: yes
+        backup: yes
+        owner: "{{ fileowner }}"
+        mode: "{{ filemode }}"
+        block: |
+          user1 ALL=(root)    NOPASSWD: ALL
+          user2 ALL=(root)    NOPASSWD: ALL
+          user3 ALL=(root)    NOPASSWD: ALL
+

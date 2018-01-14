@@ -1,0 +1,11 @@
+- name: Slack notification
+  slack:
+    token: "{{ slack_token }}"
+    channel: "@sebor"
+    username: "Updater"
+    icon_url: "http://mult-online.ru/posters/260_347_90_1/uploads/posts/2011-05/thumbs/1305576398_spanch-bob.gif"
+    icon_emoji: ':zagzag:'
+    msg: '{{ message }}'
+    color: "{{ notify_color }}"
+  delegate_to: localhost
+  become: false

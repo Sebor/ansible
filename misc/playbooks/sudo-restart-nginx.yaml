@@ -1,0 +1,7 @@
+---
+- hosts: 10.8.227.22
+  connection: ssh_sudo
+  tasks:
+     - name: "Reload nginx"
+       raw: "sudo=systemctl reload nginx"
+       become: yes

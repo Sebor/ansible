@@ -1,0 +1,25 @@
+---
+- hosts: all
+  vars:
+    password: '$6/ft/345/?%R^?Ft/ft/f/t/'
+    sudo_gr: "{{ (ansible_os_family == 'RedHat') | ternary('wheel','sudo') }}"
+    users:
+      - { 'name': 'user1', 'id': 1090, comment: 'User1' }
+      - { 'name': 'user2', 'id': 804, comment: 'User2' }
+      - { 'name': 'user3', 'id': 4108, comment: 'User3' }
+
+  tasks:
+    - name: Add multiple groups
+      group:
+        name: "{{ item.name }}"
+        gid: "{{ item.id }}"
+      with_items: "{{ users }}"
+    - name: Add multiple users
+      user:
+        name: "{{ item.name }}"
+        uid: "{{ item.id }}"
+        comment: "{{ item.comment }}"
+        password: "{{ password }}"
+        groups: "{{ sudo_gr | default(omit) }}"
+        append: yes
+      with_items: "{{ users }}"

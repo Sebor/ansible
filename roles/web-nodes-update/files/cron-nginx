@@ -1,0 +1,14 @@
+dateext
+/data/nginx/log/*.log {
+        daily
+        missingok
+        rotate 32
+        compress
+        delaycompress
+        notifempty
+        create 644 nginx nginx
+        sharedscripts
+        postrotate
+                [ ! -f /var/run/nginx.pid ] || sudo /data/nginx_kill_hup.sh
+        endscript
+}

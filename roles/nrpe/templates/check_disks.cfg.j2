@@ -1,0 +1,5 @@
+command[check_root_fs]={{ plugins_path }}check_disk -W 20% -K 10% -w 20% -c 10% -p /
+command[check_boot_fs]={{ plugins_path }}check_disk -W 20% -K 10% -w 20% -c 10% -p /boot
+command[check_opt_fs]={{ plugins_path }}check_disk -W 20% -K 10% -w 20% -c 10% -p /opt
+command[check_var_fs]={{ plugins_path }}check_disk -W 20% -K 10% -w 20% -c 10% -p /var
+command[check_usr_fs]={{ plugins_path }}check_disk -W 20% -K 10% -w 20% -c 10% -p /usr

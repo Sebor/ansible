@@ -1,0 +1,12 @@
+---
+ - hosts: web-nodes
+   tasks:
+     - name: Updater announcer
+       command: "echo234 test"
+       ignore_errors: true
+       register: result
+     - include_role:
+         name: slack
+       vars:
+         message: 'Test message on {{ inventory_hostname }}'
+       run_once: true
