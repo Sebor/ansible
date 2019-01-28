@@ -1,0 +1,40 @@
+---
+- hosts: all
+  gather_facts: no
+  vars:
+    devops_group: devops
+    devops_users:
+      - { name: 'sebor', comment: 'User1', key: 'ssh-rsa 3abq5dNx/sFsUYz2FHE5H2rQdlJd6h/QmOHlO1NSil9PPcvB6Tr4oMC8BxcFIpLaEW8fGwHWniEbU5X1cGzYDMRkj/6tSi+h' }
+      - { name: 'alex', comment: 'User2', key: 'ssh-rsa xjM81OrjB/6p8/eCQNKVHGrHWiMn7+e+kDcDOaV0zKlwZ+i1GkX4m/vExkuewQnk0J73T9oIBtAWg+3FTtQPUCFe95v2Jm7dV' }
+
+  tasks:
+    - name: Create devops group
+      group:
+        name: "{{ devops_group }}"
+        system: yes
+
+    - name: Add devops group to sudo
+      lineinfile:
+        path: "/etc/sudoers.d/{{ devops_group }}"
+        line: "%{{ devops_group }} ALL=(ALL) NOPASSWD: ALL"
+        owner: root
+        group: root
+        mode: 0440
+        create: yes
+        validate: '/usr/sbin/visudo -cf %s'
+
+    - name: Add devops users
+      user:
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        groups: "{{ devops_group }}"
+        append: yes
+      with_items: "{{ devops_users }}"
+
+    - name: Add ssh keys
+      authorized_key:
+        user: "{{ item.name }}"
+        key: "{{ item.key }}"
+        comment: "{{ item.comment }}"
+      with_items: "{{ devops_users }}"
+
